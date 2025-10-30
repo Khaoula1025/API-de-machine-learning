@@ -21,8 +21,8 @@ except:
 def predict(patient: PatientCreate):
     if not model :
         raise HTTPException(status_code=503, detail="Modèle non disponible")
-    df = pd.DataFrame([patient.dict()])
-    prediction = model.predict(df)[0]
+    df = pd.DataFrame([patient.dict()]) # The API transforms this JSON → DataFrame → Model input
+    prediction = model.predict(df)[0] # the model outputs either "positive" or "negative"
     message = (
         "Risque cardiovasculaire détecté"
         if prediction == "positive"
