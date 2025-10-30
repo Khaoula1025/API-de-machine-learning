@@ -11,7 +11,6 @@ refuser une requête si un champ est manquant ou invalide.
 class PatientCreate(BaseModel):
      age: int
      gender: str
-     status: str
      pressurehight: int
      pressurelow: int
      glucose:int
@@ -23,4 +22,5 @@ C’est un modèle de sortie : ce que l’API renvoie après avoir créé ou lu 
 Il hérite de PatientCreate → donc tous les champs sont inclus, plus id (généré par la base de données).
 """
 class PatientResponse(PatientCreate):
-     id:int
+     id: int
+     status: str | None = None # vide / manquant = valeur par défaut

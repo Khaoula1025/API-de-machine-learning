@@ -1,11 +1,37 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from schemas import PatientCreate, PatientResponse
 from sqlalchemy.orm import Session
 from config import SessionLocal, engine
 from models import Base, Patient
+import joblib
+import pandas as pd
 # Créer les tables dans la DB au lancement
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
+
+# chargement du model ML
+try:
+    model = joblib.load("cardio_model.pkl")
+except:
+    model = None
+    print("Le modèle n'a pas chargé.")
+
+# Endpoint de prédiction 
+@app.post("/predict")
+def predict(patient: PatientCreate):
+    if not model :
+        raise HTTPException(status_code=503, detail="Modèle non disponible")
+    df = pd.DataFrame([patient.dict()])
+    prediction = model.predict(df)[0]
+    message = (
+        "Risque cardiovasculaire détecté"
+        if prediction == "positive"
+        else " Aucun risque détecté"
+    )
+    return {"prediction": prediction , "message": message}
+
+
+
 # Dépendance pour la session DB
 def get_db():
     db = SessionLocal() #Ouvre une nouvelle session
@@ -14,6 +40,7 @@ def get_db():
     finally:
         db.close() 
 
+# definir les routes 
 @app.get("/")
 def home():
     return{"message":"Bonjour"}
@@ -30,8 +57,3 @@ def create_patient(patient:PatientCreate, db: Session = Depends(get_db)):
     db.refresh(new_patient) #Récupère les données mises à jour (comme l'id généré par la DB)
     return new_patient #Return le patient créé
 
-
-
-# @app.get("/patients")
-# def get_patients():
-#     return read_patients()
