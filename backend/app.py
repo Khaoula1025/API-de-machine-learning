@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends
 from schemas import PatientCreate, PatientResponse
 from sqlalchemy.orm import Session
 from config import SessionLocal, engine
@@ -9,30 +9,18 @@ import pandas as pd
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
-# chargement du model ML
-# try:
-#     model = joblib.load("cardio_model.pkl")
-# except:
-#     model = None
-#     print("Le modèle n'a pas chargé.")
-
 # Dépendance pour la session DB
 def get_db():
     db = SessionLocal() #Ouvre une nouvelle session
-    try:
-        yield db 
-    finally:
-        db.close() 
+    return db
+
 
 # Endpoint de prédiction 
 @app.post("/predict")
 def predict(patient: PatientCreate , db:Session=Depends(get_db)):
     model = joblib.load("cardio_model.pkl")
-    # patient_dict = db.query(patient).first()
-    # df = pd.DataFrame([patient_dict]).drop(columns=['status','id'])
-    # prediction = model.predict(df)
-    if not model :
-        raise HTTPException(status_code=503, detail="Modèle non disponible")
+    # if not model :
+    #     raise HTTPException(status_code=503, detail="Modèle non disponible")
     df = pd.DataFrame([patient.__dict__]) # The API transforms this JSON → DataFrame → Model input
     prediction = model.predict(df)[0] # the model outputs either "positive" or "negative"
     message = (
@@ -41,11 +29,6 @@ def predict(patient: PatientCreate , db:Session=Depends(get_db)):
         else " Aucun risque détecté"
     )
     return {"prediction": int(prediction), "message": message}
-    # return {'patient':patient.__dict__}
-
-
-
-
 
 # definir les routes 
 @app.get("/")
