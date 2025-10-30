@@ -1,5 +1,8 @@
 from sqlalchemy import Column, Integer, String, Float
-from database import Base
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import Base
+from config import Base
+# engine = create_engine('sqlite:///./patients.csv"')
 
 class Patient(Base):
     __tablename__ ="patients"
