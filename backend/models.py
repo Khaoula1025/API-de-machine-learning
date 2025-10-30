@@ -9,7 +9,7 @@ class Patient(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     age = Column(Integer)
-    gender = Column(String)
+    gender = Column(Integer)
     status = Column(String)
     pressurehight = Column(Integer)
     pressurelow = Column(Integer)

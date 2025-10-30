@@ -10,27 +10,11 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # chargement du model ML
-try:
-    model = joblib.load("cardio_model.pkl")
-except:
-    model = None
-    print("Le modèle n'a pas chargé.")
-
-# Endpoint de prédiction 
-@app.post("/predict")
-def predict(patient: PatientCreate):
-    if not model :
-        raise HTTPException(status_code=503, detail="Modèle non disponible")
-    df = pd.DataFrame([patient.dict()]) # The API transforms this JSON → DataFrame → Model input
-    prediction = model.predict(df)[0] # the model outputs either "positive" or "negative"
-    message = (
-        "Risque cardiovasculaire détecté"
-        if prediction == "positive"
-        else " Aucun risque détecté"
-    )
-    return {"prediction": prediction , "message": message}
-
-
+# try:
+#     model = joblib.load("cardio_model.pkl")
+# except:
+#     model = None
+#     print("Le modèle n'a pas chargé.")
 
 # Dépendance pour la session DB
 def get_db():
@@ -39,6 +23,29 @@ def get_db():
         yield db 
     finally:
         db.close() 
+
+# Endpoint de prédiction 
+@app.post("/predict")
+def predict(patient: PatientCreate , db:Session=Depends(get_db)):
+    model = joblib.load("cardio_model.pkl")
+    # patient_dict = db.query(patient).first()
+    # df = pd.DataFrame([patient_dict]).drop(columns=['status','id'])
+    # prediction = model.predict(df)
+    if not model :
+        raise HTTPException(status_code=503, detail="Modèle non disponible")
+    df = pd.DataFrame([patient.__dict__]) # The API transforms this JSON → DataFrame → Model input
+    prediction = model.predict(df)[0] # the model outputs either "positive" or "negative"
+    message = (
+        "Risque cardiovasculaire détecté"
+        if prediction == "positive"
+        else " Aucun risque détecté"
+    )
+    return {"prediction": int(prediction), "message": message}
+    # return {'patient':patient.__dict__}
+
+
+
+
 
 # definir les routes 
 @app.get("/")
