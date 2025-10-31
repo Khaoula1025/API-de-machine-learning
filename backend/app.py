@@ -19,8 +19,6 @@ def get_db():
 @app.post("/predict")
 def predict(patient: PatientCreate , db:Session=Depends(get_db)):
     model = joblib.load("cardio_model.pkl")
-    # if not model :
-    #     raise HTTPException(status_code=503, detail="Modèle non disponible")
     df = pd.DataFrame([patient.__dict__]) # The API transforms this JSON → DataFrame → Model input
     prediction = model.predict(df)[0] # the model outputs either "positive" or "negative"
     message = (
