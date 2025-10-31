@@ -10,7 +10,7 @@ refuser une requête si un champ est manquant ou invalide.
 """
 class PatientCreate(BaseModel):
      age: int
-     gender: str
+     gender: int
      pressurehight: int
      pressurelow: int
      glucose:int
