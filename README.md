@@ -56,7 +56,8 @@ L’objectif final est de fournir une API simple et efficace qui :
 📁 API-de-machine-learning
 │
 ├── backend/
-│   ├── app.py          
+│   ├── app.py  
+│   ├── cardio_model.pkl        
 │   ├── config.py             
 │   ├── models.py                
 │   |── schemas.py
