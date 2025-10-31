@@ -25,7 +25,7 @@ def predict(patient: PatientCreate , db:Session=Depends(get_db)):
     prediction = model.predict(df)[0] # the model outputs either "positive" or "negative"
     message = (
         "Risque cardiovasculaire détecté"
-        if prediction == "positive"
+        if prediction == 1
         else " Aucun risque détecté"
     )
     return {"prediction": int(prediction), "message": message}
